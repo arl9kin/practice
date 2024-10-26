@@ -60,35 +60,39 @@ mkdir -p .github/pull_request_template
 - [ ] Will this be part of a product update? If yes, please write one phrase about this update.
 
 ```
-4. Git workflow:
+5. Git workflow:
    - clone prod with
    ```bash
    git clone
    ```
-   1. Pull data from prod
+   5.1. Pull data from prod
    ```bash
    git pull
    ```
 
-   2. Create dev branch
+   5.2. Create dev branch
    ```bash
    git checkout -b branch-name
    ```
-   3. Make changes
-   4. Check status
+   5.3. Make changes
+   5.4. Check status
    ```bash
    git status
    ```
-   5. Git add
+   5.5. Git add
     ```bash
    git add file-name
    ```
-   6. Git commit
+   5.6. Git commit
     ```bash
    git commit -m 'message'
    ```
-   7. Push to remote
+   5.7. Push to remote
     ```bash
    git push origin branch-name
    ```
-   8. Create a PR
+   5.8. Create a PR
+
+6. Installed:
+   6.1. Docker [docker-site](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+   6.2. Docker Compose [docker compose](https://docs.docker.com/compose/install/)
