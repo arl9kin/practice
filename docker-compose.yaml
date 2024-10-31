@@ -34,6 +34,28 @@ services:
       - source_postgres
       - destination_postgres
 
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-postgres:1.4.7
+    command:
+      [
+        "debug",
+        "--profiles-dir",
+        "/root/.dbt/",
+        "--project-dir",
+        "/usr/app/dbt",
+      ]
+    networks:
+      - elt_network
+    volumes:
+      - ./custom_postgres:/usr/app/dbt
+      - /home/arl9kin/.dbt/:/root/.dbt/
+    depends_on:
+      elt_script:
+        condition: service_completed_successfully
+    environment:
+      DBT_PROFILE: default
+      DBT_TARGET: dev
+
 networks:
   elt_network:
     driver: bridge
