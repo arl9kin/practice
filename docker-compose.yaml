@@ -1,4 +1,15 @@
 services:
+
+  init-airflow:
+    image: apache/airflow:2.10.2
+    networks:
+      - elt_network
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    command: >
+      bash -c "airflow db init &&
+               airflow users create --username airflow --password password --firstname Anton --lastname Kuzmin --role Admin --email admin@example.com"
+
   source_postgres:
     image: postgres:15
     ports:
@@ -23,39 +34,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
 
-  # elt_script:
-  #   build:
-  #     context: ./elt # Directory containing the Dockerfile and elt_script.py
-  #     dockerfile: Dockerfile # Name of the Dockerfile, if it's something other than "Dockerfile", specify here
-  #   command: ['python', 'elt_script.py']
-  #   networks:
-  #     - elt_network
-  #   depends_on:
-  #     - source_postgres
-  #     - destination_postgres
-
-  # dbt:
-  #   image: ghcr.io/dbt-labs/dbt-postgres:1.4.7
-  #   command:
-  #     [
-  #       "run",
-  #       "--profiles-dir",
-  #       "/root/.dbt/",
-  #       "--project-dir",
-  #       "/usr/app/dbt",
-  #     ]
-  #   networks:
-  #     - elt_network
-  #   volumes:
-  #     - ./custom_postgres:/usr/app/dbt
-  #     - /home/arl9kin/.dbt/:/root/.dbt/
-  #   depends_on:
-  #     elt_script:
-  #       condition: service_completed_successfully
-  #   environment:
-  #     DBT_PROFILE: default
-  #     DBT_TARGET: dev
-
   postgres: #for airflow
     image: postgres:15
     networks:
@@ -65,25 +43,14 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
 
-  init-airflow:
-    image: apache/airflow:2.10.2
-    depends_on:
-      - postgres
-    networks:
-      - elt_network
-    environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-    command: >
-      bash -c "airflow db init &&
-               airflow users create --username airflow --password password --firstname Anton --lastname Kuzmin --role Admin --email admin@example.com"
-
   webserver:
     build:
       context: .
       dockerfile: Dockerfile
     user: root
     depends_on:
-      - postgres
+      init-airflow:
+        condition: service_completed_successfully
     networks:
       - elt_network
     extra_hosts:
@@ -114,7 +81,8 @@ services:
       dockerfile: Dockerfile
     user: root
     depends_on:
-      - postgres
+      init-airflow:
+        condition: service_completed_successfully
     networks:
       - elt_network
     extra_hosts:
