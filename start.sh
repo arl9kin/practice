@@ -1,7 +1,9 @@
-#!/bin/sh
+docker compose up -d
 
-# Start the cron daemon in the background
-cron &
+cd airbyte
 
-# Execute the Python script
-python /app/elt_script.py
+if [ -f "docker-compose.yaml" ]; then
+ docker compose up
+else
+ ./run-ab-platform.sh
+fi
